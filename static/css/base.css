@@ -46,16 +46,6 @@ button {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.favorite svg {
-  fill: red;
-  stroke: red;
-}
-
-.not-favorite svg {
-  fill: none;
-  stroke: #555555;
-}
-
 svg {
   width: 16px;
   height: 16px;
@@ -72,21 +62,16 @@ span svg {
 }
 
 .black-button {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
+    display: flex;
     padding: 10px 20px;
     background-color: #000;
     color: white;
     border-radius: 8px;
     text-decoration: none;
-    white-space: nowrap;
-    font-size: 14px;
-    transition: background-color 0.2s;
 }
 
 .black-button svg {
-    margin: 0;
+    margin-top: 4px;
 }
 
 .project-status {
