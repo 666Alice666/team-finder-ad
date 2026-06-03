@@ -1,11 +1,12 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import PasswordChangeForm
 from django.shortcuts import get_object_or_404, redirect, render
 
 from common.constants import USERS_PER_PAGE
 from common.services import get_query_prefix, paginate_queryset
 
-from .forms import LoginForm, ProfileForm, RegisterForm, UserPasswordChangeForm
+from .forms import LoginForm, ProfileForm, RegisterForm
 from .services import (
     change_password_and_keep_session,
     login_form_user,
@@ -62,7 +63,7 @@ def edit_profile(request):
 
 @login_required
 def change_password(request):
-    form = UserPasswordChangeForm(request.user, request.POST or None)
+    form = PasswordChangeForm(request.user, request.POST or None)
 
     if form.is_valid():
         change_password_and_keep_session(request, form)

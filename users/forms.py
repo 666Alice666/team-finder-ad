@@ -1,12 +1,15 @@
 from django import forms
 from django.contrib.auth import authenticate
-from django.contrib.auth.forms import PasswordChangeForm, ReadOnlyPasswordHashField
+from django.contrib.auth.forms import ReadOnlyPasswordHashField
 
 from common.constants import USER_NAME_MAX_LENGTH, USER_SURNAME_MAX_LENGTH
 from common.forms import validate_github_url
 
 from .models import User
 from .services import is_valid_phone, normalize_phone
+
+
+PROFILE_ABOUT_TEXTAREA_ROWS = 4
 
 
 class RegisterForm(forms.Form):
@@ -56,7 +59,7 @@ class ProfileForm(forms.ModelForm):
         model = User
         fields = ["name", "surname", "avatar", "about", "phone", "github_url"]
         widgets = {
-            "about": forms.Textarea(attrs={"rows": 4}),
+            "about": forms.Textarea(attrs={"rows": PROFILE_ABOUT_TEXTAREA_ROWS}),
         }
 
     def clean_phone(self):
@@ -81,10 +84,6 @@ class ProfileForm(forms.ModelForm):
         value = self.cleaned_data.get("github_url")
         validate_github_url(value)
         return value
-
-
-class UserPasswordChangeForm(PasswordChangeForm):
-    pass
 
 
 class AdminUserCreationForm(forms.ModelForm):

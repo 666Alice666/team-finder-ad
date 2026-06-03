@@ -5,12 +5,15 @@ from common.forms import validate_github_url
 from .models import Project
 
 
+PROJECT_DESCRIPTION_TEXTAREA_ROWS = 6
+
+
 class ProjectForm(forms.ModelForm):
     class Meta:
         model = Project
         fields = ["name", "description", "github_url", "status"]
         widgets = {
-            "description": forms.Textarea(attrs={"rows": 6}),
+            "description": forms.Textarea(attrs={"rows": PROJECT_DESCRIPTION_TEXTAREA_ROWS}),
             "status": forms.Select(
                 choices=(
                     (Project.OPEN, "Открыт"),

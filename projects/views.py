@@ -10,7 +10,7 @@ from common.constants import PROJECTS_PER_PAGE, SKILLS_AUTOCOMPLETE_LIMIT
 from common.services import get_query_prefix, paginate_queryset
 
 from .forms import ProjectForm
-from .models import Project
+from .models import Project, Skill
 from .services import (
     attach_skill,
     autocomplete_skills,
@@ -26,6 +26,20 @@ from .services import (
     switch_participation,
     user_can_manage_project,
 )
+
+
+def json_not_found(message):
+    return JsonResponse(
+        {"status": "error", "error": message},
+        status=HTTPStatus.NOT_FOUND,
+    )
+
+
+def get_project_for_json(project_id):
+    project = Project.objects.filter(pk=project_id).first()
+    if project is None:
+        return None, json_not_found("Проект не найден.")
+    return project, None
 
 
 def project_list(request):
@@ -85,7 +99,9 @@ def edit_project(request, project_id):
 @login_required
 @require_POST
 def complete_project(request, project_id):
-    project = get_object_or_404(Project, pk=project_id)
+    project, error_response = get_project_for_json(project_id)
+    if error_response is not None:
+        return error_response
 
     if not close_project(project, request.user):
         return JsonResponse({"status": "error"}, status=HTTPStatus.FORBIDDEN)
@@ -96,7 +112,10 @@ def complete_project(request, project_id):
 @login_required
 @require_POST
 def toggle_participate(request, project_id):
-    project = get_object_or_404(Project, pk=project_id)
+    project, error_response = get_project_for_json(project_id)
+    if error_response is not None:
+        return error_response
+
     return JsonResponse(
         {"status": "ok", "participant": switch_participation(project, request.user)}
     )
@@ -113,7 +132,10 @@ def skill_suggestions(request):
 @login_required
 @require_POST
 def add_project_skill(request, project_id):
-    project = get_object_or_404(Project, pk=project_id)
+    project, error_response = get_project_for_json(project_id)
+    if error_response is not None:
+        return error_response
+
     if not user_can_manage_project(request.user, project):
         return JsonResponse({"status": "error"}, status=HTTPStatus.FORBIDDEN)
 
@@ -133,11 +155,17 @@ def add_project_skill(request, project_id):
 @login_required
 @require_POST
 def remove_project_skill(request, project_id, skill_id):
-    project = get_object_or_404(Project, pk=project_id)
+    project, error_response = get_project_for_json(project_id)
+    if error_response is not None:
+        return error_response
+
     if not user_can_manage_project(request.user, project):
         return JsonResponse({"status": "error"}, status=HTTPStatus.FORBIDDEN)
 
-    skill = get_object_or_404(Skill, pk=skill_id)
+    skill = Skill.objects.filter(pk=skill_id).first()
+    if skill is None:
+        return json_not_found("Навык не найден.")
+
     if not detach_skill(project, skill):
         return JsonResponse({"status": "error"}, status=HTTPStatus.NOT_FOUND)
 
